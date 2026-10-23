@@ -1,70 +1,88 @@
-# HollyAI
+# HollyAI v1.1 — Google login + persistent chats
 
-HollyAI — веб-чат с тёмным изумрудным интерфейсом и серверным подключением к языковой модели через OpenAI API.
+## Что исправлено
 
-## Что уже есть
+- Сервер показывает понятные причины ошибок ИИ вместо одной общей ошибки.
+- Добавлен вход через Google OAuth.
+- Пользовательские аккаунты сохраняются в PostgreSQL.
+- История чатов сохраняется в PostgreSQL, привязана к аккаунту и доступна после повторного входа.
+- Сессии хранятся в PostgreSQL, cookie защищена настройками для Render.
+- Добавлены загрузка, удаление чатов и выход из аккаунта.
 
-- Адаптивный интерфейс для компьютера и телефона.
-- Новый чат, список диалогов, удаление отдельных диалогов.
-- История чатов в `localStorage` браузера.
-- Отправка сообщений на сервер; API-ключ не попадает в браузер.
-- Markdown-ответы, блоки кода, копирование ответа и повторная генерация.
-- Проверка состояния `/api/health`.
-- Понятные сообщения для частых API-ошибок.
+## 1. Подготовь сервисы
 
-## Запуск локально
+Тебе нужны:
+1. Render Web Service для сайта.
+2. PostgreSQL на Render.
+3. API-ключ провайдера ИИ.
+4. OAuth Client ID и Client Secret в Google Cloud Console.
 
-Нужен Node.js 20 или новее.
+## 2. Google OAuth
 
-1. Распакуйте архив и откройте терминал в папке проекта.
-2. Установите зависимости:
+1. Открой https://console.cloud.google.com/.
+2. Создай проект (или выбери существующий).
+3. В **APIs & Services → OAuth consent screen** настрой экран согласия. Для личного тестирования можно выбрать External и добавить свой Google-аккаунт в Test users, если приложение в режиме тестирования.
+4. В **APIs & Services → Credentials → Create Credentials → OAuth client ID** выбери **Web application**.
+5. В **Authorized JavaScript origins** добавь домен сайта, например `https://ТВОЙ-СЕРВИС.onrender.com`.
+6. В **Authorized redirect URIs** добавь ТОЧНО:
+   `https://ТВОЙ-СЕРВИС.onrender.com/auth/google/callback`
+7. Скопируй Client ID и Client Secret. Не публикуй Client Secret.
 
-   ```bash
-   npm install
-   ```
+Для локального тестирования добавь также:
+- Origin: `http://localhost:3000`
+- Redirect URI: `http://localhost:3000/auth/google/callback`
 
-3. Создайте файл `.env`, скопировав `.env.example`.
-4. В `.env` укажите свой API-ключ и доступную вам модель:
+После смены домена обнови redirect URI в Google Cloud.
 
-   ```env
-   OPENAI_API_KEY=ваш_секретный_ключ
-   OPENAI_MODEL=gpt-4.1-mini
-   PORT=3000
-   ```
+## 3. PostgreSQL на Render
 
-5. Запустите сервер:
+1. В Render создай **New → PostgreSQL**.
+2. После создания скопируй **Internal Database URL**, если Web Service и база в одном регионе/среде Render. Если подключаешься извне, используй подходящий External URL.
+3. Убедись, что в URL нет лишних пробелов. Сервер создаёт таблицы `users`, `chats` и таблицу сессий автоматически.
+4. Не удаляй базу, если хочешь сохранить историю пользователей.
 
-   ```bash
-   npm start
-   ```
+## 4. Переменные окружения Web Service
 
-6. Откройте `http://localhost:3000`.
+В Render → твой Web Service → **Environment** добавь:
 
-**Не публикуйте `.env` и не вставляйте API-ключ в `public/app.js`.** Расходы на запросы к модели зависят от провайдера, модели и использования API.
+- `NODE_ENV` = `production`
+- `OPENAI_API_KEY` = секретный ключ API модели
+- `OPENAI_MODEL` = `gpt-4.1-mini` (или модель, доступная твоему ключу)
+- `DATABASE_URL` = URL PostgreSQL
+- `SESSION_SECRET` = длинная случайная строка
+- `GOOGLE_CLIENT_ID` = Client ID из Google Cloud
+- `GOOGLE_CLIENT_SECRET` = Client Secret из Google Cloud
+- `GOOGLE_CALLBACK_URL` = `https://ТВОЙ-СЕРВИС.onrender.com/auth/google/callback`
 
-## Деплой на Render
+`DATABASE_SSL` обычно не нужно задавать на Render. Для локальной БД без TLS можно установить `DATABASE_SSL=false`.
 
-### Через GitHub
+После добавления переменных выполни redeploy.
 
-1. Создайте новый репозиторий на GitHub и загрузите содержимое проекта.
-2. В Render выберите **New → Web Service** и подключите репозиторий.
-3. Настройки:
-   - **Runtime:** Node
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Health Check Path:** `/api/health`
-4. В разделе **Environment** добавьте:
-   - `OPENAI_API_KEY` — секретный API-ключ провайдера;
-   - `OPENAI_MODEL` — модель, доступная вашему API-ключу, например `gpt-4.1-mini`;
-   - `NODE_ENV` — `production`.
-5. Запустите деплой и откройте выданный Render URL.
+## 5. Деплой
 
-В репозитории есть `render.yaml` для настройки Blueprint. `OPENAI_API_KEY` намеренно требует ручного ввода.
+В Render Web Service:
+- Build Command: `npm install`
+- Start Command: `npm start`
+- Health Check Path: `/api/health`
 
-## Важно
+Либо используй `render.yaml` как Blueprint, затем задай секретные переменные вручную.
 
-- Нужен отдельный API-доступ к выбранному провайдеру; подписка на чат-сервис сама по себе не гарантирует API-кредиты.
-- Название модели в `OPENAI_MODEL` должно быть доступно для вашего API-ключа.
-- Сейчас история хранится только в браузере и не синхронизируется между устройствами. Очистка данных браузера удалит локальные чаты.
-- В проекте пока нет регистрации, аккаунтов, общей серверной базы истории, лимитов по пользователям или панели администратора. Их можно добавить следующим этапом.
-- Для публичного запуска рекомендуется добавить rate limiting, защиту от злоупотреблений, лимиты расходов и политику конфиденциальности.
+## 6. Проверка
+
+Открой `https://ТВОЙ-СЕРВИС.onrender.com/api/health`. В ответе проверь:
+- `aiConfigured: true`
+- `googleConfigured: true`
+- `databaseReady: true`
+
+Если `aiConfigured` false — проверь `OPENAI_API_KEY`.
+Если `googleConfigured` false — проверь все три `GOOGLE_*` переменные.
+Если `databaseReady` false — открой Render Logs и проверь `DATABASE_URL`, сетевой доступ и SSL.
+Если ИИ возвращает ошибку, серверные логи покажут статус API. Проверь баланс/лимиты API и доступность `OPENAI_MODEL`.
+
+## Безопасность и ограничения
+
+- Никогда не коммить `.env`, Client Secret или API-ключ в GitHub.
+- Не используй один общий аккаунт для всех пользователей.
+- Этот стартовый проект пока не включает rate limiting, CAPTCHA, биллинг, админ-панель или лимиты расходов. Перед публичным запуском их стоит добавить.
+- Существующие старые чаты, которые хранились только в localStorage предыдущей версии, автоматически в PostgreSQL не переносятся.
+- OAuth-тестовый режим Google может разрешать вход только тестовым пользователям, пока приложение не опубликовано/не проверено по требованиям Google.
