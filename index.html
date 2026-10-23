@@ -37,7 +37,7 @@
         <div class="model-pill"><span class="pulse"></span> HollyAI <span class="muted">/</span> <span class="model-name">Assistant</span></div>
         <div class="top-actions">
           <span class="online-label"><i></i> Онлайн</span>
-          <div class="account-area" id="accountArea"><button type="button" class="google-button" id="googleLogin"><span class="google-g">G</span> Войти через Google</button></div>
+          <div class="account-area" id="accountArea"><button type="button" class="google-button" id="authOpenButton">Авторизация</button></div>
         </div>
       </header>
 
@@ -71,6 +71,14 @@
     </main>
   </div>
 
+  <dialog id="authDialog" class="settings-dialog auth-dialog">
+    <form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form>
+    <div class="dialog-logo">H</div>
+    <h2>Авторизация</h2>
+    <p>Выбери способ входа, чтобы сохранять чаты и пользоваться HollyAI.</p>
+    <button type="button" class="auth-method google-method" id="googleAuthChoice"><span class="google-g">G</span><span>Продолжить с Google</span><span class="auth-arrow">→</span></button>
+    <p class="dialog-small">Другие способы входа пока недоступны.</p>
+  </dialog>
   <div class="toast" id="toast" role="status"></div>
   <dialog id="settingsDialog" class="settings-dialog">
     <form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form>

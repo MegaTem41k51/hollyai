@@ -4,6 +4,7 @@
   const input = $("#messageInput"), form = $("#chatForm"), sendButton = $("#sendButton");
   const charCount = $("#charCount"), toastEl = $("#toast"), sidebar = $("#sidebar");
   const settingsDialog = $("#settingsDialog");
+  const authDialog = $("#authDialog");
   let chats = [], activeId = null, busy = false, authenticated = false, me = null, toastTimer;
 
   function uid() { return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2); }
@@ -60,8 +61,8 @@
     const isLoggedIn = Boolean(authenticated && me?.user);
 
     if (!isLoggedIn) {
-      area.innerHTML = '<button type="button" class="google-button" id="googleLogin"><span class="google-g">G</span> Войти через Google</button>';
-      $("#googleLogin").addEventListener("click", () => { window.location.href = "/auth/google"; });
+      area.innerHTML = '<button type="button" class="google-button" id="authOpenButton">Авторизация</button>';
+      $("#authOpenButton").addEventListener("click", () => authDialog.showModal());
       if (welcomeLogin) {
         welcomeLogin.hidden = false;
         welcomeLogin.onclick = () => { window.location.href = "/auth/google"; };
@@ -264,6 +265,7 @@
   $("#openSidebar").addEventListener("click", () => sidebar.classList.add("open"));
   $("#closeSidebar").addEventListener("click", closeSidebar);
   $("#settingsButton").addEventListener("click", () => settingsDialog.showModal());
+  $("#googleAuthChoice").addEventListener("click", () => { window.location.href = "/auth/google"; });
   $("#clearHistory").addEventListener("click", async () => {
     if (!authenticated) return;
     if (!confirm("Удалить все чаты из твоего аккаунта? Это действие нельзя отменить.")) return;
