@@ -55,54 +55,49 @@
   }
   function renderAccount() {
     const area = $("#accountArea");
-    let login = $("#googleLogin");
-    if (!authenticated || !me) {
-      // Keep the login button visible for visitors, even while other UI updates.
-      if (!login) {
-        login = document.createElement("button");
-        login.type = "button";
-        login.id = "googleLogin";
-        login.className = "google-button";
-        login.innerHTML = '<span class="google-g">G</span> Войти через Google';
-        area.replaceChildren(login);
+    const welcomeLogin = $("#welcomeGoogleLogin");
+    const welcomeLoginText = $("#welcomeLoginText");
+    const isLoggedIn = Boolean(authenticated && me?.user);
+
+    if (!isLoggedIn) {
+      area.innerHTML = '<button type="button" class="google-button" id="googleLogin"><span class="google-g">G</span> Войти через Google</button>';
+      $("#googleLogin").addEventListener("click", () => { window.location.href = "/auth/google"; });
+      if (welcomeLogin) {
+        welcomeLogin.hidden = false;
+        welcomeLogin.onclick = () => { window.location.href = "/auth/google"; };
       }
-      login.hidden = false;
-      login.onclick = () => { window.location.href = "/auth/google"; };
-      const chip = area.querySelector(".account-chip");
-      if (chip) chip.remove();
+      if (welcomeLoginText) welcomeLoginText.textContent = "Войди через Google, чтобы сохранять историю чатов.";
       return;
     }
 
-    // Authenticated users see their account menu instead of the Google login button.
-    if (login) login.remove();
-    let wrap = area.querySelector(".account-chip");
-    if (!wrap) {
-      wrap = document.createElement("button");
-      wrap.type = "button";
-      wrap.className = "account-chip";
-      area.replaceChildren(wrap);
-    }
-    wrap.innerHTML = "";
-    wrap.title = me.user.name || me.user.email;
+    // Авторизованному пользователю показываем профиль вместо кнопки входа.
+    area.innerHTML = '';
+    const profile = document.createElement("button");
+    profile.type = "button";
+    profile.className = "account-chip";
+    profile.title = "Открыть профиль";
     if (me.user.picture) {
       const img = document.createElement("img");
       img.src = me.user.picture;
       img.alt = "";
       img.referrerPolicy = "no-referrer";
-      wrap.appendChild(img);
+      profile.appendChild(img);
     } else {
       const initial = document.createElement("span");
       initial.className = "account-initial";
-      initial.textContent = (me.user.name || "H").slice(0, 1).toUpperCase();
-      wrap.appendChild(initial);
+      initial.textContent = (me.user.name || me.user.email || "H").slice(0, 1).toUpperCase();
+      profile.appendChild(initial);
     }
     const label = document.createElement("span");
     label.className = "account-label";
-    label.textContent = me.user.name || me.user.email;
+    label.textContent = "Профиль";
     const arrow = document.createElement("span");
     arrow.textContent = "⌄";
-    wrap.append(label, arrow);
-    wrap.onclick = () => settingsDialog.showModal();
+    profile.append(label, arrow);
+    profile.addEventListener("click", () => settingsDialog.showModal());
+    area.appendChild(profile);
+    if (welcomeLogin) welcomeLogin.hidden = true;
+    if (welcomeLoginText) welcomeLoginText.textContent = "Рад снова видеть тебя! Твои чаты сохраняются в профиле.";
   }
   function renderChats() {
     chatList.innerHTML = "";
