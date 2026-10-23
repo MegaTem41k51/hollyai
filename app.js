@@ -55,35 +55,54 @@
   }
   function renderAccount() {
     const area = $("#accountArea");
-    area.innerHTML = "";
-    if (authenticated && me) {
-      const wrap = document.createElement("button");
-      wrap.className = "account-chip";
-      wrap.title = me.user.name || me.user.email;
-      if (me.user.picture) {
-        const img = document.createElement("img");
-        img.src = me.user.picture; img.alt = ""; img.referrerPolicy = "no-referrer";
-        wrap.appendChild(img);
-      } else {
-        const initial = document.createElement("span");
-        initial.className = "account-initial";
-        initial.textContent = (me.user.name || "H").slice(0, 1).toUpperCase();
-        wrap.appendChild(initial);
+    let login = $("#googleLogin");
+    if (!authenticated || !me) {
+      // Keep the login button visible for visitors, even while other UI updates.
+      if (!login) {
+        login = document.createElement("button");
+        login.type = "button";
+        login.id = "googleLogin";
+        login.className = "google-button";
+        login.innerHTML = '<span class="google-g">G</span> Войти через Google';
+        area.replaceChildren(login);
       }
-      const label = document.createElement("span");
-      label.className = "account-label";
-      label.textContent = me.user.name || me.user.email;
-      const arrow = document.createElement("span"); arrow.textContent = "⌄";
-      wrap.append(label, arrow);
-      wrap.addEventListener("click", () => settingsDialog.showModal());
-      area.appendChild(wrap);
-    } else {
-      const login = document.createElement("button");
-      login.className = "google-button";
-      login.innerHTML = '<span class="google-g">G</span> Войти через Google';
-      login.addEventListener("click", () => { window.location.href = "/auth/google"; });
-      area.appendChild(login);
+      login.hidden = false;
+      login.onclick = () => { window.location.href = "/auth/google"; };
+      const chip = area.querySelector(".account-chip");
+      if (chip) chip.remove();
+      return;
     }
+
+    // Authenticated users see their account menu instead of the Google login button.
+    if (login) login.remove();
+    let wrap = area.querySelector(".account-chip");
+    if (!wrap) {
+      wrap = document.createElement("button");
+      wrap.type = "button";
+      wrap.className = "account-chip";
+      area.replaceChildren(wrap);
+    }
+    wrap.innerHTML = "";
+    wrap.title = me.user.name || me.user.email;
+    if (me.user.picture) {
+      const img = document.createElement("img");
+      img.src = me.user.picture;
+      img.alt = "";
+      img.referrerPolicy = "no-referrer";
+      wrap.appendChild(img);
+    } else {
+      const initial = document.createElement("span");
+      initial.className = "account-initial";
+      initial.textContent = (me.user.name || "H").slice(0, 1).toUpperCase();
+      wrap.appendChild(initial);
+    }
+    const label = document.createElement("span");
+    label.className = "account-label";
+    label.textContent = me.user.name || me.user.email;
+    const arrow = document.createElement("span");
+    arrow.textContent = "⌄";
+    wrap.append(label, arrow);
+    wrap.onclick = () => settingsDialog.showModal();
   }
   function renderChats() {
     chatList.innerHTML = "";
