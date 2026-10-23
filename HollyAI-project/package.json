@@ -1,0 +1,19 @@
+{
+  "name": "hollyai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HollyAI - emerald themed AI chat web app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "openai": "^4.86.1"
+  }
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d0a">
+  <meta name="description" content="HollyAI — твой ИИ-помощник">
+  <title>HollyAI — ИИ-помощник</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><span>H</span><i></i></div>
+        <div class="brand-name">Holly<span>AI</span><small>YOUR AI SPACE</small></div>
+        <button class="icon-button mobile-close" id="closeSidebar" aria-label="Закрыть меню">×</button>
+      </div>
+      <button class="new-chat" id="newChat"><span class="plus">＋</span> Новый чат <kbd>⌘ K</kbd></button>
+      <div class="side-label">ТВОИ ЧАТЫ</div>
+      <div class="chat-list" id="chatList"></div>
+      <div class="sidebar-bottom">
+        <div class="status-dot"></div>
+        <div><strong>HollyAI</strong><small>ИИ-помощник</small></div>
+        <button class="icon-button" id="settingsButton" title="Настройки">⚙</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-button menu-button" id="openSidebar" aria-label="Открыть меню">☰</button>
+        <div class="model-pill"><span class="pulse"></span> HollyAI <span class="muted">/</span> <span class="model-name">Assistant</span></div>
+        <div class="top-actions">
+          <span class="online-label"><i></i> Онлайн</span>
+          <button class="avatar" id="profileButton" title="Профиль">H</button>
+        </div>
+      </header>
+
+      <section class="conversation" id="conversation">
+        <div class="welcome" id="welcome">
+          <div class="welcome-orb"><div class="orb-core">H</div><span class="orb-ring ring-one"></span><span class="orb-ring ring-two"></span><span class="orb-spark spark-one">✦</span><span class="orb-spark spark-two">✧</span></div>
+          <div class="eyebrow"><span></span> ТВОЙ ИИ-ПОМОЩНИК</div>
+          <h1>Привет, я <span>HollyAI</span><em>.</em></h1>
+          <p class="welcome-copy">Помогаю думать, создавать и находить решения.<br>С чего начнём сегодня?</p>
+          <div class="suggestions">
+            <button class="suggestion" data-prompt="Придумай концепцию современного сайта с красивым дизайном"><span class="suggestion-icon green">✦</span><span><b>Придумать идею</b><small>От идеи до готового плана</small></span><span class="arrow">↗</span></button>
+            <button class="suggestion" data-prompt="Помоги написать и объясни код простым языком"><span class="suggestion-icon blue">{ }</span><span><b>Написать код</b><small>Разработка и поиск ошибок</small></span><span class="arrow">↗</span></button>
+            <button class="suggestion" data-prompt="Составь понятный план обучения новой теме на неделю"><span class="suggestion-icon purple">◷</span><span><b>Составить план</b><small>Разложить цели по шагам</small></span><span class="arrow">↗</span></button>
+            <button class="suggestion" data-prompt="Помоги улучшить текст, чтобы он звучал естественно и убедительно"><span class="suggestion-icon orange">✎</span><span><b>Улучшить текст</b><small>Письмо, пост или описание</small></span><span class="arrow">↗</span></button>
+          </div>
+        </div>
+        <div class="messages" id="messages" aria-live="polite"></div>
+      </section>
+
+      <div class="composer-wrap">
+        <form class="composer" id="chatForm">
+          <textarea id="messageInput" rows="1" maxlength="12000" placeholder="Напиши свой вопрос HollyAI..." aria-label="Сообщение"></textarea>
+          <div class="composer-bottom">
+            <div class="composer-hint"><span class="sparkle">✳</span> ИИ может ошибаться — проверяй важную информацию</div>
+            <div class="send-side"><span class="char-count" id="charCount">0 / 12000</span><button class="send-button" id="sendButton" type="submit" aria-label="Отправить сообщение"><span>↑</span></button></div>
+          </div>
+        </form>
+        <div class="footer-note">HollyAI <span>•</span> Создана для новых идей</div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <dialog id="settingsDialog" class="settings-dialog">
+    <form method="dialog"><button class="dialog-close" aria-label="Закрыть">×</button></form>
+    <div class="dialog-logo">H</div>
+    <h2>Настройки HollyAI</h2>
+    <p>История чатов хранится в этом браузере. Очистка истории удалит сохранённые диалоги на этом устройстве.</p>
+    <button class="danger-button" id="clearHistory">Очистить всю историю</button>
+    <p class="dialog-small">Не отправляй в чат пароли, секретные ключи и другие конфиденциальные данные.</p>
+  </dialog>
+  <script src="/app.js"></script>
+</body>
+</html>
